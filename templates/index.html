@@ -1,0 +1,217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ADBUs — Access Terminal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{% static 'indexStyle.css' %}"/>
+  <style>.uni-logo{width: 55px;}</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="card">
+    <span class="corner-bl"></span>
+    <span class="corner-br"></span>
+
+    <div class="card-header">
+      <div><img src="../static/images/logo.png" class="uni-logo"/></div>
+      <div class="logo">ADBUs</div>
+      <div class="subtitle" id="subtitle">secure access terminal</div>
+    </div>
+
+    <hr />
+
+    <!-- ── LOGIN FORM ── -->
+    <form id="login-form">
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="user@adbus.io" autocomplete="email" />
+      </div>
+
+      <div class="field">
+        <div class="field-meta">
+          <a href="#" class="forgot">forgot password?</a>
+        </div>
+        <input type="password" id="login-password" placeholder="••••••••••••" autocomplete="current-password" />
+      </div>
+
+      <div id="login-error" class="error-msg"></div>
+      <button class="btn" type="submit"><span class="cursor">LOGIN</span></button>
+
+      <div class="nav-row" style="margin-top:18px;">
+        no account? <a href="#" onclick="showPanel('register')">request access</a>
+      </div>
+
+    </form>
+
+    <!-- ── REGISTER FORM ── -->
+    <form id="register-form" style="display:none;">
+
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="reg-username" placeholder="your_handle" autocomplete="username" />
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="user@adbus.io" autocomplete="email" />
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="reg-password" placeholder="••••••••••••" autocomplete="new-password" oninput="checkStrength(this.value)" />
+        <div class="strength-bar">
+          <span id="s1"></span><span id="s2"></span><span id="s3"></span><span id="s4"></span>
+        </div>
+        <div class="strength-label" id="slabel"></div>
+      </div>
+
+      <div class="field">
+        <label>Confirm Password</label>
+        <input type="password" id="reg-confirm" placeholder="••••••••••••" autocomplete="new-password" />
+      </div>
+
+      <div id="register-error" class="error-msg"></div>
+      <button class="btn" type="submit"><span class="cursor">REGISTER</span></button>
+
+      <div class="nav-row" style="margin-top:18px;">
+        already have access? <a href="#" onclick="showPanel('login')">sign in</a>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<style>
+  .error-msg {
+    color: #ff4444;
+    font-size: 12px;
+    margin-bottom: 10px;
+    letter-spacing: .1em;
+    min-height: 16px;
+  }
+  .form-slide-out {
+    animation: slideOut 0.2s ease forwards;
+  }
+  .form-slide-in {
+    animation: slideIn 0.25s ease forwards;
+  }
+  @keyframes slideOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-10px); }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script>
+  const API = 'http://127.0.0.1:8000';
+
+  function showPanel(panel) {
+    const loginForm    = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const subtitle     = document.getElementById('subtitle');
+
+    const hiding  = panel === 'register' ? loginForm : registerForm;
+    const showing = panel === 'register' ? registerForm : loginForm;
+
+    hiding.classList.add('form-slide-out');
+    setTimeout(() => {
+      hiding.style.display = 'none';
+      hiding.classList.remove('form-slide-out');
+      showing.style.display = 'block';
+      showing.classList.add('form-slide-in');
+      setTimeout(() => showing.classList.remove('form-slide-in'), 300);
+    }, 200);
+
+    subtitle.textContent = panel === 'register' ? 'request access' : 'secure access terminal';
+    document.getElementById('login-error').textContent = '';
+    document.getElementById('register-error').textContent = '';
+  }
+
+  function checkStrength(val) {
+    const bars   = [1,2,3,4].map(i => document.getElementById('s' + i));
+    const label  = document.getElementById('slabel');
+    const colors = { 1: '#ff4444', 2: '#ff9900', 3: '#ccff00', 4: '#00ff41' };
+    const labels = { 0: '', 1: 'weak', 2: 'fair', 3: 'good', 4: 'strong' };
+
+    let score = 0;
+    if (val.length >= 8)           score++;
+    if (/[A-Z]/.test(val))         score++;
+    if (/[0-9]/.test(val))         score++;
+    if (/[^A-Za-z0-9]/.test(val))  score++;
+
+    bars.forEach((b, i) => {
+      b.style.background = i < score ? colors[score] : 'var(--border)';
+    });
+    label.textContent = val.length ? '// ' + labels[score] : '';
+    label.style.color = score > 0 ? colors[score] : 'var(--muted)';
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errEl    = document.getElementById('login-error');
+    errEl.textContent = '';
+
+    try {
+      const res  = await fetch(`${API}/api/auth/login/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        window.location.href = '/tracker/';
+      } else {
+        errEl.textContent = '// ' + data.error;
+      }
+    } catch {
+      errEl.textContent = '// cannot reach server';
+    }
+  });
+
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('reg-username').value.trim();
+    const email    = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const confirm  = document.getElementById('reg-confirm').value;
+    const errEl    = document.getElementById('register-error');
+    errEl.textContent = '';
+
+    if (password !== confirm) {
+      errEl.textContent = '// passwords do not match';
+      return;
+    }
+
+    try {
+      const res  = await fetch(`${API}/api/auth/register/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username, email, password })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        window.location.href = '/tracker/';
+      } else {
+        errEl.textContent = '// ' + data.error;
+      }
+    } catch {
+      errEl.textContent = '// cannot reach server';
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+python manage.py seed (incase of changes in code, run this)
+
+python -m venv venv (activate virtual environment, terminal 1)
+venv\Scripts\activate (go into the virtual environment, terminal 1)
+
+python manage.py runserver(run server in terminal 1, folder path itself for cmd)
+
+python tracker/tick.py(run bus ticks in terminal 2, folder path itself for cmd)
+
+http://127.0.0.1:8000/ login page
+http://127.0.0.1:8000/tracker/ bus tracker dashboard

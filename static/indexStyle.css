@@ -1,0 +1,238 @@
+/* ── ADBUs shared stylesheet ── */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0a0f0a;
+  --panel:     #0d130d;
+  --border:    #1a2e1a;
+  --green:     #00ff41;
+  --green-dim: #00c832;
+  --green-dark:#003d10;
+  --text:      #b8ffb8;
+  --muted:     #3a6b3a;
+}
+
+/* ── Base ── */
+html, body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* scanlines */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(0,0,0,.13) 2px, rgba(0,0,0,.13) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* vignette */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.7) 100%);
+  pointer-events: none;
+  z-index: 998;
+}
+
+/* ── Layout ── */
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* ── Card ── */
+.card {
+  width: 100%;
+  max-width: 320px;
+  background: var(--panel);
+  border: 1px solid var(--green-dim);
+  padding: 40px 36px;
+  position: relative;
+  box-shadow: 0 0 32px rgba(0,255,65,.07), inset 0 0 60px rgba(0,255,65,.02);
+}
+
+/* corner brackets */
+.card::before {
+  content: ''; position: absolute;
+  top: -1px; left: -1px;
+  width: 14px; height: 14px;
+  border-top: 2px solid var(--green);
+  border-left: 2px solid var(--green);
+}
+.card::after {
+  content: ''; position: absolute;
+  top: -1px; right: -1px;
+  width: 14px; height: 14px;
+  border-top: 2px solid var(--green);
+  border-right: 2px solid var(--green);
+}
+.corner-bl {
+  position: absolute; bottom: -1px; left: -1px;
+  width: 14px; height: 14px;
+  border-bottom: 2px solid var(--green);
+  border-left: 2px solid var(--green);
+}
+.corner-br {
+  position: absolute; bottom: -1px; right: -1px;
+  width: 14px; height: 14px;
+  border-bottom: 2px solid var(--green);
+  border-right: 2px solid var(--green);
+}
+
+/* ── Card header ── */
+.card-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.logo {
+  font-family: 'VT323', monospace;
+  font-size: 52px;
+  color: var(--green);
+  line-height: 1;
+  text-shadow: 0 0 16px rgba(0,255,65,.6), 0 0 40px rgba(0,255,65,.2);
+  letter-spacing: .1em;
+}
+.subtitle {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 24px 0;
+}
+
+/* ── Form fields ── */
+.field { margin-bottom: 20px; }
+
+label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  background: #060e06;
+  border: 1px solid var(--border);
+  color: var(--green);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 15px;
+  padding: 11px 13px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  caret-color: var(--green);
+}
+input::placeholder { color: var(--green-dark); }
+input:focus {
+  border-color: var(--green-dim);
+  box-shadow: 0 0 0 3px rgba(0,255,65,.06), 0 0 12px rgba(0,255,65,.08);
+}
+
+/* ── Forgot link ── */
+.field-meta {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 7px;
+}
+.forgot {
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .2s;
+}
+.forgot:hover { color: var(--green); }
+
+/* ── Button ── */
+.btn {
+  width: 100%;
+  padding: 13px;
+  margin-top: 8px;
+  background: transparent;
+  border: 1px solid var(--green-dim);
+  color: var(--green);
+  font-family: 'VT323', monospace;
+  font-size: 22px;
+  letter-spacing: .2em;
+  cursor: pointer;
+  transition: background .2s, box-shadow .2s, color .2s;
+}
+.btn:hover {
+  background: rgba(0,255,65,.07);
+  box-shadow: 0 0 20px rgba(0,255,65,.18);
+  color: #fff;
+}
+.btn:active { background: rgba(0,255,65,.14); }
+
+/* blinking cursor */
+.cursor::after {
+  content: '_';
+  animation: blink .8s step-end infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Bottom nav row ── */
+.nav-row {
+  margin-top: 22px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: .06em;
+}
+.nav-row a {
+  color: var(--green-dim);
+  text-decoration: none;
+}
+.nav-row a:hover { color: var(--green); text-decoration: underline; }
+
+/* ── Password strength (signup only) ── */
+.strength-bar {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+.strength-bar span {
+  flex: 1;
+  height: 3px;
+  background: var(--border);
+  transition: background .3s;
+}
+.strength-label {
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--muted);
+  margin-top: 5px;
+  min-height: 14px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .card { padding: 28px 20px; }
+  .logo { font-size: 42px; }
+}

@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>.uni-logo{width:35px; box-shadow: 0 0 20px rgb(0, 112, 9); border-radius: 50%;}</style>
+</head>
+<body>
+    <header>
+        <div><img src="../static/images/logo.png" class="uni-logo"/></div>
+        <div class="logo">AD<span>BUs</span></div>
+        <div class="header-right">
+            <div class="status-pill">
+                <div class="status-dot"></div>
+                <span>Live Tracking</span>
+            </div>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <span class="theme-icon theme-icon-dark">🌙</span>
+                <span class="theme-icon theme-icon-light">☀️</span>
+            </button>
+        </div>
+    </header>
+    <div class="main">
+        <div id="map"></div>
+
+        <!-- Mobile slide-up panel toggle -->
+        <button class="panel-toggle" id="panel-toggle" aria-label="Toggle panel">
+            <span class="panel-toggle-icon">▲</span>
+            <span>Bus Info</span>
+        </button>
+
+        <div class="panel" id="panel">
+            <!-- Mobile drag handle -->
+            <div class="panel-handle"></div>
+
+            <div class="bus-hero">
+                <div class="bus-hero-header">
+                    <div class="bus-icon">🚌</div>
+                    <div class="bus-title">
+                        <h2>Bus #1 - Azara Locality</h2>
+                        <p>Picking up students. 5 Stops</p>
+                    </div>
+                    <div class="live-tag">LIVE</div>
+                </div>
+                <div class="eta-display">
+                    <div class="eta-left">
+                        <div class="eta-label">Next Stop</div>
+                        <div class="eta-stop" id="next-stop-name">-</div>
+                        <div class="eta-sublabel" id="next-stop-dist">Calculating...</div>
+                    </div>
+                    <div>
+                        <div class="eta-time" id="eta-time">-<span>min away</span></div>
+                    </div>
+                </div>
+            </div>
+        
+            <div class="stops-section">
+                <div class="section-title">
+                    Route Stops
+                </div>
+                <div id="stops-list"></div>
+            </div>
+
+            <div class="bottom-bar">
+                <p>Updated <strong id="last-updated">Just Now</strong></p>
+            </div>
+            
+        </div>
+    </div>
+    <div class="toast" id="toast">🚌<span id="toast-msg"></span></div>
+    <script src="{% static 'script.js' %}"></script>
+    <script>
+        // ─── Theme Toggle ───────────────────────────────────────────────────────
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        function setTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            localStorage.setItem('adbus-theme', theme);
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('adbus-theme') || 'dark';
+        setTheme(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            setTheme(current === 'dark' ? 'light' : 'dark');
+        });
+
+        // ─── Mobile Panel Toggle ────────────────────────────────────────────────
+        const panel = document.getElementById('panel');
+        const panelToggle = document.getElementById('panel-toggle');
+        let panelOpen = false;
+
+        panelToggle.addEventListener('click', () => {
+            panelOpen = !panelOpen;
+            panel.classList.toggle('panel-open', panelOpen);
+            panelToggle.classList.toggle('active', panelOpen);
+            panelToggle.querySelector('.panel-toggle-icon').textContent = panelOpen ? '▼' : '▲';
+        });
+
+        // Swipe down to close panel on mobile
+        let touchStartY = 0;
+        panel.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+        panel.addEventListener('touchend', e => {
+            const delta = e.changedTouches[0].clientY - touchStartY;
+            if (delta > 60) {
+                panelOpen = false;
+                panel.classList.remove('panel-open');
+                panelToggle.classList.remove('active');
+                panelToggle.querySelector('.panel-toggle-icon').textContent = '▲';
+            }
+        }, { passive: true });
+    </script>
+</body>
+</html>
